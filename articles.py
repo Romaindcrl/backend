@@ -4,7 +4,6 @@ from schemas import ArticleInfo
 
 wiki_dir = Path(__file__).resolve().parent.parent / "wiki"
 
-
 def _article_file_path(article_url: str) -> Path | None:
     if not article_url or any(char in article_url for char in ("/", "\\", "\x00")):
         return None
@@ -20,8 +19,12 @@ def _article_file_path(article_url: str) -> Path | None:
 def list_articles() -> list[ArticleInfo]:
     articles: list[ArticleInfo] = []
     for article in (wiki_dir / "articles").glob("*.md"):
+        source = read_source(article.stem)
+        if source is None:
+            continue
         articles.append(
             ArticleInfo(
+                author=source[1],
                 name=article.stem.replace("_", " "),
                 articleUrl=article.stem,
             )
@@ -34,16 +37,18 @@ def exists(article_url: str) -> bool:
     return article_path is not None and article_path.is_file()
 
 
-def read_source(article_url: str) -> str | None:
+def read_source(article_url: str) -> tuple[str, str] | None:
     article_path = _article_file_path(article_url)
     if article_path is None or not article_path.is_file():
         return None
-    return article_path.read_text(encoding="utf-8")
+    author, _, content = article_path.read_text(encoding="utf-8").partition("\n")
+    return content, author
 
 
-def write_source(article_url: str, source: str) -> None:
+def write_source(article_url: str, source: str, *, overwrite: bool = False) -> None:
     article_path = _article_file_path(article_url)
     if article_path is None:
-        raise FileNotFoundError(article_url)
+        raise ValueError("Invalid article path")
     article_path.parent.mkdir(parents=True, exist_ok=True)
-    article_path.write_text(source, encoding="utf-8")
+    with article_path.open("w" if overwrite else "x", encoding="utf-8") as file:
+        file.write(source)
