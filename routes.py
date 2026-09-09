@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 import markdown2
 
-from articles import exists, list_articles as load_article_index, read_source, write_source
+from articles import delete_article_file, exists, list_articles as load_article_index, read_source, write_source
 from comments import max_comment_id, read_comments, write_comment
 from schemas import Article, ArticleCreate, ArticleEdit, ArticleInfo, Comment, NewComment
 
@@ -44,6 +44,15 @@ def edit_article(body: ArticleEdit, article_url: str) -> Article:
     author = body.author if body.author is not None else get_article(article_url).author
     write_source(article_url, f"{author}\n{body.content}", overwrite=True)
     return get_article(article_url)
+
+def delete_article(article_url: str) -> dict[str, bool]:
+    try:
+        delete_article_file(article_url)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail="Chemin d'article invalide.") from error
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=404, detail="Article non trouvé.") from error
+    return {"deleted": True}
 
 def get_comments() -> list[Comment]:
     return read_comments()

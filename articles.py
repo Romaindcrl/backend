@@ -1,3 +1,4 @@
+from multiprocessing import Value
 from pathlib import Path
 
 from schemas import ArticleInfo
@@ -33,7 +34,7 @@ def list_articles() -> list[ArticleInfo]:
 
 
 def exists(article_url: str) -> bool:
-    article_path = _article_file_path(article_url)
+    article_path: Path = _article_file_path(article_url)
     return article_path is not None and article_path.is_file()
 
 
@@ -46,9 +47,25 @@ def read_source(article_url: str) -> tuple[str, str] | None:
 
 
 def write_source(article_url: str, source: str, *, overwrite: bool = False) -> None:
-    article_path = _article_file_path(article_url)
-    if article_path is None:
+    if not article_url:
         raise ValueError("Invalid article path")
+
+    article_path: Path = _article_file_path(article_url)
+
     article_path.parent.mkdir(parents=True, exist_ok=True)
     with article_path.open("w" if overwrite else "x", encoding="utf-8") as file:
         file.write(source)
+
+def delete_article_file(article_url: str) -> None:
+    article_path = _article_file_path(article_url)
+    if article_path is None:
+        raise ValueError("Invalid article path.")
+
+    if not article_path.is_file():
+        raise FileNotFoundError("Article not found.")
+
+    destination = wiki_dir / "trash" / article_path.name
+    if destination.exists() or destination.is_symlink():
+        destination.unlink()
+
+    article_path.rename(destination)

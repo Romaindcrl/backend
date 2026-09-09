@@ -1,7 +1,12 @@
 from pydantic import BaseModel, Field, field_validator
 
 class ArticleInput(BaseModel):
-    @field_validator("content", check_fields=False)
+    content: str = Field(
+        min_length=1,
+        max_length=100_000
+    )
+
+    @field_validator("content")
     @classmethod
     def meaningful_content(cls, value):
         if not value.strip():
@@ -24,18 +29,9 @@ class ArticleCreate(ArticleInput):
     def strip_name(cls, value):
         return value.strip() if isinstance(value, str) else value
 
-    content: str = Field(
-        min_length=1,
-        max_length=100_000
-    )
-
 
 class ArticleEdit(ArticleInput):
     author: str | None = Field(default=None, max_length=100, pattern=r"^[^\r\n\x00]*$")
-    content: str = Field(
-        min_length=1,
-        max_length=100_000
-    )
 
 
 # Response models: rendered HTML and existing articles can exceed input limits.
