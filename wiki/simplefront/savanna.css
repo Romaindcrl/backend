@@ -1,0 +1,25 @@
+/* The reading surface stays solid; the landscape owns the space around it. */
+:root { --background: #cbb381; --line: #d6cfb6; --surface: #fffdf4; }
+body { min-height: 100vh; background: #cbb381; }
+.savanna-background { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: linear-gradient(#7fa5ae, #eed0a0 48%, #b69a50); }
+#savanna-canvas { display: block; width: 100%; height: 100%; }
+.site-header { background: #fffdf4e8; }
+.page { width: min(610px, calc(51vw - 48px)); margin: 0 0 0 clamp(24px, 4vw, 70px); }
+.article-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.card-art { height: 88px; }
+.card-art svg { width: 78px; height: 78px; }
+.article-layout { display: block; }
+.sidebar { margin-top: 20px; }
+.list-heading, .form-page, .article-panel, .sidebar { box-shadow: 0 8px 35px #45352014; }
+@media (max-width: 900px) {
+  .page { width: calc(100% - 40px); max-width: 640px; margin: 0 auto; padding-top: 300px; }
+  .savanna-background { height: 650px; }
+  #savanna-canvas { height: 100vh; }
+  body { background: #b5a16e; }
+}
+@media (max-width: 480px) {
+  .article-grid { grid-template-columns: 1fr; }
+  .page { width: calc(100% - 24px); padding-top: 270px; }
+  .card-art { height: 75px; }
+  .card-art svg { width: 65px; height: 65px; }
+}

@@ -1,10 +1,17 @@
-# Python-generated files
+# Local environments and generated files
+.DS_Store
+.venv/
 __pycache__/
-*.py[oc]
+*.py[cod]
+*.egg-info/
 build/
 dist/
-wheels/
-*.egg-info
+.env
+.env.*
+!.env.example
 
-# Virtual environments
-.venv
+# Only the application content is published from the local wiki directory.
+/wiki/*
+!/wiki/articles/
+!/wiki/comments.json
+!/wiki/simplefront/

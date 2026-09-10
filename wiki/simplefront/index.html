@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#193e2d" />
+    <title>Articles</title>
+    <link rel="stylesheet" href="style.css?v=4" />
+    <link rel="stylesheet" href="savanna.css?v=1" />
+    <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}</script>
+  </head>
+
+  <body>
+    <div class="savanna-background" aria-hidden="true" inert>
+      <canvas id="savanna-canvas"></canvas>
+    </div>
+    <!--
+      Vue controls everything inside #app.
+      v-cloak hides the page while Vue is starting.
+    -->
+    <div id="app" v-cloak>
+      <!-- Header shared by every page. -->
+      <header class="site-header">
+        <nav aria-label="Main navigation">
+          <a href="#/" :aria-current="page === 'list' ? 'page' : null" class="home-link">
+            <svg viewBox="0 0 160 160" aria-hidden="true"><use href="assets/jungle-icons.svg#banana"></use></svg>
+            Articles
+          </a>
+          <a href="#/comments" :aria-current="page === 'comments' ? 'page' : null">Comments</a>
+          <a v-if="features.create" class="button button-small" href="#/create">New article</a>
+        </nav>
+      </header>
+
+      <main class="page" :aria-busy="loading">
+        <!-- v-if displays this message while a FastAPI request is running. -->
+        <p v-if="loading" class="message" role="status">Loading…</p>
+
+        <!-- v-else-if takes over when the request fails. -->
+        <div v-else-if="error" class="message message-error" role="alert">
+          <strong>Something went wrong.</strong>
+
+          <!-- Double braces display the value of a Vue variable. -->
+          <span>{{ error }}</span>
+          <small>Technical details are also available in the browser console.</small>
+
+          <!-- @click calls a function when the button is clicked. -->
+          <button type="button" class="text-button" @click="loadCurrentPage">
+            Try again
+          </button>
+        </div>
+
+        <!--
+          PAGE 1: ARTICLE LIST
+          This section is visible when page equals "list".
+        -->
+        <section v-else-if="page === 'list'">
+          <div class="list-heading">
+            <div>
+              <h1>Articles</h1>
+              <p class="article-count">{{ articles.length }} articles</p>
+            </div>
+            <button class="button button-secondary" type="button" @click="refreshArticles">Refresh</button>
+          </div>
+          <div v-if="articles.length" class="article-grid">
+            <a
+              v-for="article in articles"
+              :key="article.articleUrl"
+              class="article-card"
+              :data-kind="getArticleStyle(article.articleUrl).kind"
+              :href="getArticleLink(article.articleUrl)"
+            >
+              <div class="card-art" aria-hidden="true">
+                <svg viewBox="0 0 160 160"><use :href="'assets/jungle-icons.svg#' + getArticleStyle(article.articleUrl).icon"></use></svg>
+              </div>
+              <div class="card-copy">
+                <h2>{{ article.name }}</h2>
+                <span class="card-link">Read article <span aria-hidden="true">→</span></span>
+              </div>
+            </a>
+          </div>
+          <p v-else class="message">No articles are available.</p>
+        </section>
+
+        <!--
+          PAGE 2: READ AN ARTICLE
+          currentArticle contains the article returned by FastAPI.
+        -->
+        <div v-else-if="page === 'article' &amp;&amp; currentArticle" class="article-layout">
+          <article class="article-panel">
+            <div class="article-heading">
+              <div>
+                <a class="back-link" href="#/">← All articles</a>
+                <h1>{{ currentArticle.name }}</h1>
+              </div>
+
+              <div class="form-actions">
+              <!-- This button stays hidden until the edit feature is enabled. -->
+              <a
+                v-if="features.edit"
+                class="button button-secondary"
+                :href="getEditLink(currentArticle.articleUrl)"
+              >
+                Edit
+              </a>
+              <button class="button button-danger" type="button" @click="confirmDelete">
+                Delete
+              </button>
+              </div>
+            </div>
+
+            <!--
+              v-html inserts the HTML already rendered from Markdown by FastAPI.
+              Only display content controlled by the backend here.
+            -->
+            <div class="article-metadata">
+              <p v-if="currentArticle.author">By {{ currentArticle.author }}</p>
+            </div>
+            <div class="article-content" v-html="currentArticle.content"></div>
+          </article>
+
+          <!-- Secondary navigation displayed next to the article. -->
+          <aside class="sidebar" aria-label="Article list">
+            <h2>Other articles</h2>
+            <ul v-if="otherArticles.length">
+              <li v-for="article in otherArticles" :key="article.articleUrl">
+                <a :href="getArticleLink(article.articleUrl)">
+                  {{ article.name }}
+                </a>
+              </li>
+            </ul>
+            <p v-else class="sidebar-empty">No other articles.</p>
+          </aside>
+        </div>
+
+        <!--
+          PAGE 3: CREATE AN ARTICLE
+          This screen stays unavailable while features.create is false.
+        -->
+        <section v-else-if="page === 'create'" class="form-page">
+          <h1>New article</h1>
+
+          <!-- @submit.prevent avoids a reload and calls createArticle(). -->
+          <form class="article-form" @submit.prevent="createArticle">
+            <!-- The author is edited separately from the Markdown body. -->
+            <label>
+              Author (optional)
+              <input v-model.trim="author" />
+            </label>
+            <label>
+              Name
+
+              <!-- v-model connects this input to a JavaScript variable. -->
+              <input
+                v-model.trim="newArticle.name"
+                required
+                autocomplete="off"
+                placeholder="Article name"
+              />
+            </label>
+
+            <label>
+              Markdown content
+              <textarea v-model="newArticle.content" required rows="16"></textarea>
+            </label>
+
+            <!-- Submission errors are kept separate from loading errors. -->
+            <p v-if="submitError" class="message message-error" role="alert">
+              {{ submitError }}
+            </p>
+
+            <div class="form-actions">
+              <a class="button button-secondary" href="#/">Cancel</a>
+              <button class="button" type="submit" :disabled="saving">
+                {{ saving ? 'Creating…' : 'Create' }}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!--
+          PAGE 4: EDIT AN ARTICLE
+          draft contains an editable copy of the article Markdown.
+        -->
+        <section v-else-if="page === 'edit' &amp;&amp; currentArticle" class="form-page">
+          <h1>{{ currentArticle.name }}</h1>
+
+          <!-- The form calls saveArticle() without reloading the page. -->
+          <form class="article-form" @submit.prevent="saveArticle">
+            <!-- The author is edited separately from the Markdown body. -->
+            <label>
+              Author (optional)
+              <input v-model.trim="author" />
+            </label>
+            <label>
+              Markdown content
+              <textarea v-model="draft" required rows="20"></textarea>
+            </label>
+
+            <p v-if="submitError" class="message message-error" role="alert">
+              {{ submitError }}
+            </p>
+
+            <div class="form-actions">
+              <a
+                class="button button-secondary"
+                :href="getArticleLink(currentArticle.articleUrl)"
+              >
+                Cancel
+              </a>
+              <button class="button" type="submit" :disabled="saving">
+                {{ saving ? 'Saving…' : 'Save' }}
+              </button>
+            </div>
+          </form>
+        </section>
+        <!-- Site-wide discussion: comments are plain text, not HTML. -->
+        <comments-guide
+          v-else-if="page === 'comments' &amp;&amp; commentsUnavailable"
+          @retry="loadCurrentPage"
+        ></comments-guide>
+        <section v-else-if="page === 'comments'" class="form-page">
+          <h1>Comments</h1>
+          <button class="button button-secondary refresh-button" type="button" @click="loadCurrentPage">
+            Refresh comments
+          </button>
+
+          <ul v-if="comments.length" class="comment-list">
+            <li v-for="comment in comments" :key="comment.id" class="comment">
+              <strong>{{ comment.author || 'Anonymous' }}</strong>
+              <p>{{ comment.content }}</p>
+            </li>
+          </ul>
+          <p v-else class="message">No comments yet.</p>
+
+          <h2>Leave a comment</h2>
+          <form class="article-form" @submit.prevent="postComment">
+            <label>
+              Author (optional)
+              <input v-model.trim="newComment.author" :disabled="postingComment" />
+            </label>
+            <label>
+              Comment
+              <textarea v-model="newComment.content" required rows="5" :disabled="postingComment"></textarea>
+            </label>
+            <p v-if="commentError" class="message message-error" role="alert">{{ commentError }}</p>
+            <p v-if="commentSuccess" class="message" role="status">{{ commentSuccess }}</p>
+            <div class="form-actions">
+              <button class="button" type="submit" :disabled="postingComment">
+                {{ postingComment ? 'Posting…' : 'Post comment' }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+      <!-- Native dialog provides modal focus handling and keyboard support. -->
+      <dialog ref="deleteDialog" aria-labelledby="delete-title" @cancel.prevent="cancelDelete">
+        <h2 id="delete-title">{{ deleteError ? 'Deletion could not be completed' : 'Delete article?' }}</h2>
+        <delete-article-guide v-if="deleteError" :error="deleteError"></delete-article-guide>
+        <p v-else>Move “{{ articleToDelete?.name }}” to trash? Its file will be kept and can be restored later.</p>
+        <p v-if="deleting" role="status">Deleting…</p>
+        <div class="form-actions">
+          <button class="button button-secondary" type="button" autofocus
+            :disabled="deleting" @click="cancelDelete">{{ deleteError ? 'Close' : 'Cancel' }}</button>
+          <button v-if="!deleteError" class="button button-danger" type="button"
+            :disabled="deleting" @click="deleteArticle">
+            {{ deleting ? 'Deleting…' : 'Delete article' }}
+          </button>
+        </div>
+      </dialog>
+      <jungle-ambience></jungle-ambience>
+      <api-console></api-console>
+    </div>
+
+    <!--
+      Scripts load in this order: Vue, configuration, API client, application.
+      Vue is stored in vendor, so no installation or Internet access is needed.
+    -->
+    <script src="vendor/vue.global.prod.js"></script>
+    <script src="config.js"></script>
+    <script src="api-console.js?v=2"></script>
+    <script src="api.js"></script>
+    <script src="comments-guide.js"></script>
+    <script src="delete-article-guide.js"></script>
+    <script src="jungle-score.js"></script>
+    <script src="jungle-synth.js?v=2"></script>
+    <script src="jungle-audio.js?v=3"></script>
+    <script src="jungle-ambience.js?v=3"></script>
+    <script src="app.js?v=4"></script>
+    <script type="module" src="savanna-scene.js?v=2"></script>
+    <script src="live-preview.js?v=2"></script>
+  </body>
+</html>

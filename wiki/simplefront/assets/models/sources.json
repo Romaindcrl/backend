@@ -1,0 +1,110 @@
+[
+  {
+    "file": "lion.glb",
+    "title": "Male lion, standing alert (African Savanna Animals)",
+    "source": "https://3dassets.dev/assets/savanna-wildlife-lion-male-standing-e2078874",
+    "download": "https://cdn.3dassets.dev/assets/6531/v1/model.glb",
+    "license": {
+      "slug": "cc0-1.0",
+      "name": "CC0 1.0 Universal",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionRequired": false
+    },
+    "sha256": "fd18fc42c565330a2f3d016985403243c3f25ac46a74686f7736985d926d6e28",
+    "sizeMeters": [
+      1.011,
+      1.659,
+      4.075
+    ]
+  },
+  {
+    "file": "zebra.glb",
+    "title": "Plains zebra (African Savanna Animals)",
+    "source": "https://3dassets.dev/assets/savanna-wildlife-plains-zebra-6fd05a16",
+    "download": "https://cdn.3dassets.dev/assets/6547/v1/model.glb",
+    "license": {
+      "slug": "cc0-1.0",
+      "name": "CC0 1.0 Universal",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionRequired": false
+    },
+    "sha256": "a52e3d92d12e034447f0a08a0d513f85167547baec4408665d1470f61aa7bbf4",
+    "sizeMeters": [
+      0.8,
+      2.075,
+      3.147
+    ]
+  },
+  {
+    "file": "elephant.glb",
+    "title": "African bush elephant bull, standing (African Savanna Animals)",
+    "source": "https://3dassets.dev/assets/savanna-wildlife-african-elephant-bull-3c1c133e",
+    "download": "https://cdn.3dassets.dev/assets/6528/v1/model.glb",
+    "license": {
+      "slug": "cc0-1.0",
+      "name": "CC0 1.0 Universal",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionRequired": false
+    },
+    "sha256": "e9c6d8a83e01864fc4e44c10ce65ecc58ace329368e97308a2f9fe2a08f74318",
+    "sizeMeters": [
+      2.1,
+      3.556,
+      5.966
+    ]
+  },
+  {
+    "file": "impala.glb",
+    "title": "Impala ram (African Savanna Animals)",
+    "source": "https://3dassets.dev/assets/savanna-wildlife-impala-ram-46cb6825",
+    "download": "https://cdn.3dassets.dev/assets/6549/v1/model.glb",
+    "license": {
+      "slug": "cc0-1.0",
+      "name": "CC0 1.0 Universal",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionRequired": false
+    },
+    "sha256": "dfb8c56628855669696bccab71b6b643904ca7c8c2cffce9e12620880c112629",
+    "sizeMeters": [
+      0.439,
+      1.896,
+      2.247
+    ]
+  },
+  {
+    "file": "crocodile.glb",
+    "title": "Nile crocodile (African Savanna Animals)",
+    "source": "https://3dassets.dev/assets/savanna-wildlife-nile-crocodile-15cb4d60",
+    "download": "https://cdn.3dassets.dev/assets/6557/v1/model.glb",
+    "license": {
+      "slug": "cc0-1.0",
+      "name": "CC0 1.0 Universal",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionRequired": false
+    },
+    "sha256": "009b218c12cc3727eee0f5140199325eb05f3c35bd7b81bccdcaa089a9216474",
+    "sizeMeters": [
+      1.394,
+      0.579,
+      4.836
+    ]
+  },
+  {
+    "file": "giraffe.glb",
+    "title": "Reticulated giraffe (African Savanna Animals)",
+    "source": "https://3dassets.dev/assets/savanna-wildlife-reticulated-giraffe-9d85623f",
+    "download": "https://cdn.3dassets.dev/assets/6535/v1/model.glb",
+    "license": {
+      "slug": "cc0-1.0",
+      "name": "CC0 1.0 Universal",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attributionRequired": false
+    },
+    "sha256": "122152e67715ad11f8c459f389ca4035a91a2870a49cda11e56ff88f0012e369",
+    "sizeMeters": [
+      1.006,
+      5.265,
+      4.156
+    ]
+  }
+]
