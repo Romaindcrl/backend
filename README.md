@@ -187,5 +187,10 @@ article directory, including links pointing outside it.
 
 This is a local file-based application. Concurrent comment writes can overwrite
 one another or allocate duplicate IDs. Article HTML is not sanitized, so only
-trusted Markdown should be displayed. Editing currently renders the previous
-article to read its author; malformed LaTeX in that version can block an edit.
+trusted Markdown should be displayed. Editing reads the saved author without
+rendering the previous body; the replacement is rendered before it is saved.
+
+## Coding practices
+
+See [CODING_GUIDELINES.md](CODING_GUIDELINES.md) for the course recommendations
+and the modules that implement them.

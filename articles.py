@@ -9,7 +9,9 @@ wiki_dir: Path = Path(__file__).resolve().parent.parent / "wiki"
 
 def _article_file_path(article_url: str) -> Path | None:
     """Accept only files from the active article directory."""
-    if not article_url or any(char in article_url for char in ("/", "\\", "\x00")):
+    if not article_url:
+        return None
+    if any(char in article_url for char in ("/", "\\", "\x00")):
         return None
 
     articles_dir: Path = (wiki_dir / "articles").resolve()

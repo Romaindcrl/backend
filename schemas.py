@@ -63,7 +63,6 @@ class NewComment(BaseModel):
     @field_validator("author", "content", mode="before")
     @classmethod
     def strip_text(cls: type["NewComment"], value: object) -> object:
-        # Content must not be blank; the author is optional.
         """Trim text before field validation; only the author may remain empty."""
         return value.strip() if isinstance(value, str) else value
 
